@@ -1,0 +1,36 @@
+{
+    "servers": {
+
+        "app": [
+            {
+                "name": "app1",
+                "cpu": 500,
+                "mem": 256,
+                "drives": [
+                    {
+                        "boot": true,
+                        "size": 8000000000,
+                        "image": "debian7"
+                    },
+                    {
+                        "boot": false,
+                        "size": 2000000000
+                    }
+                ]
+
+
+            }
+        ],
+
+        "db": [
+
+        ],
+
+        "loadbal": [
+
+        ]
+
+
+    }
+
+}
