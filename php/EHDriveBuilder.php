@@ -5,6 +5,14 @@
  * Time: 16:24
  */
 
+
+/**
+ * Class EHDriveBuilder
+ *
+ * Constructs command line instructions to create drives using the ElasticHosts API
+ * and command line tool
+ *
+ */
 class EHDriveBuilder {
 
     /**
@@ -22,6 +30,9 @@ class EHDriveBuilder {
     const WIN_2012_SQL     = '7b9807cc-3c92-425f-878c-1d45927f3f9c';
 
 
+    /**
+     * What we can do
+     */
     const CREATE = 1;
     const IS_IMAGING_COMPLETE = 2;
 
@@ -62,6 +73,9 @@ class EHDriveBuilder {
 
 
     /**
+     *
+     * Create a drive from an existing image
+     *
      * @param EHDrive $drive
      * @param string  $imageName   Use a constant, e.g. EHDriveBuilder::DEBIAN_74
      *
@@ -79,6 +93,14 @@ class EHDriveBuilder {
     }
 
 
+    /**
+     * Get information about a particular drive
+     *
+     * @param EHDrive $drive
+     *
+     * @return string
+     * @throws InvalidArgumentException
+     */
     public function info (EHDrive $drive) {
         $id = $drive->getIdentifier();
         if (!$id) {
@@ -88,7 +110,13 @@ class EHDriveBuilder {
     }
 
 
-
+    /**
+     * @param EHDrive $drive
+     * @param array   $response
+     * @param         $action
+     *
+     * @return mixed
+     */
     public function parseResponse (EHDrive $drive, array $response, $action) {
         switch ($action) {
             case EHDriveBuilder::CREATE:
@@ -101,6 +129,12 @@ class EHDriveBuilder {
 
     }
 
+    /**
+     * @param EHDrive $drive
+     * @param array   $response
+     *
+     * @return mixed
+     */
     private function parseResponseCreate (EHDrive $drive, array $response) {
         $driveIdentifier = $this->searchResponseArrayForLine($response, '/^drive (.*)$/');
         $drive->setIdentifier($driveIdentifier);
@@ -108,6 +142,11 @@ class EHDriveBuilder {
 
     }
 
+    /**
+     * @param array $response
+     *
+     * @return mixed
+     */
     private function parseResponseForImagingComplete (array $response) {
         $searchLine = '/^imaging (.*)$/';
         return $this->searchResponseArrayForLine($response, $searchLine);
