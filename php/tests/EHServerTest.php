@@ -33,5 +33,20 @@ class EHServerTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, count($drives));
 
     }
+
+    public function test_we_get_values_from_config_object () {
+        $cfg = (object)[
+            'name' => 'server1',
+            'mem' => '1024',
+            'cpu' => '2000'
+        ];
+        $driveCfg = new stdClass();
+        $cfg->drives = [$driveCfg];
+
+        $eh = new EHServer($cfg);
+        $this->assertEquals('server1', $eh->getConfigValue('name'));
+        $this->assertEquals('1024', $eh->getConfigValue('mem'));
+        $this->assertNull($eh->getConfigValue('doesnotexist'));
+    }
 }
  

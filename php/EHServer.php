@@ -8,18 +8,29 @@
 class EHServer implements Server {
 
 
+    /**
+     * @var object
+     */
     private $config;
 
 
+    /**
+     * @var null | array
+     */
     private $drives = null;
 
 
+    /**
+     * @param array|object $config Properties for server - see EH docs
+     */
     public function __construct ($config) {
         $this->config = (object)$config;
     }
 
 
-
+    /**
+     * @return EHDrive[]
+     */
     public function getDrives () {
 
         if ($this->drives === null) {
@@ -29,6 +40,25 @@ class EHServer implements Server {
 
     }
 
+
+    /**
+     * @param $prop string
+     *
+     * @return mixed
+     */
+    public function getConfigValue ($prop) {
+        if (property_exists($this->config, $prop)) {
+            return $this->config->{$prop};
+        }
+        return null;
+    }
+
+
+    /**
+     * Sets up EHDrive instances for the server
+     *
+     * @throws LogicException
+     */
     private function prepareDrives () {
 
         if (!property_exists($this->config, 'drives')) {
@@ -38,7 +68,7 @@ class EHServer implements Server {
         $driveInfo = $this->config->drives;
 
         foreach ($driveInfo as $drive) {
-            $this->drives[] = new EHDrive( (object) $drive);
+            $this->drives[] = new EHDrive((object)$drive);
         }
     }
 
