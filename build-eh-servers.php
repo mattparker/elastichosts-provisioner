@@ -18,7 +18,9 @@ $allGroups = [];
 
 
 
-$ehServerBuilder = new EHServerBuilder(new EHDriveBuilder());
+$ehServerBuilder = new EHServerBuilder();
+$ehDriveBuilder = new EHDriveBuilder();
+$ehBuilder = new EHBuilder($ehServerBuilder, $ehDriveBuilder);
 
 
 
@@ -28,7 +30,7 @@ foreach ($json_server_definition as $serverGroupName => $serverInfo) {
     foreach ($serverInfo as $server) {
         $server = new EHServer($server);
 
-        $ehServerBuilder->build($server);
+        $ehBuilder->build($server);
 
         $group->addServer($server);
         $allGroups[] = $group;
