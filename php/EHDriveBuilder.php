@@ -95,24 +95,34 @@ class EHDriveBuilder {
                 return $this->parseResponseCreate($drive, $response);
                 break;
             case EHDriveBuilder::IS_IMAGING_COMPLETE:
-                return $this->parseResponseForImagingComplete($drive, $response);
+                return $this->parseResponseForImagingComplete($response);
                 break;
         }
 
     }
 
     private function parseResponseCreate (EHDrive $drive, array $response) {
-        foreach ($response as $driveName) {
-            if (preg_match('/^drive (.*)$/', $driveName, $matches)) {
-                $driveIdentifier = $matches[1];
-                $drive->setIdentifier($driveIdentifier);
-            }
-        }
+        $driveIdentifier = $this->searchResponseArrayForLine($response, '/^drive (.*)$/');
+        $drive->setIdentifier($driveIdentifier);
+        return $driveIdentifier;
+
     }
 
-    private function parseResponseForImagingComplete (EHDrive $drive, array $response) {
+    private function parseResponseForImagingComplete (array $response) {
+        $searchLine = '/^imaging (.*)$/';
+        return $this->searchResponseArrayForLine($response, $searchLine);
+    }
+
+    /**
+     * @param array $response
+     * @param string $searchLine  Regexp to look for, with one parameterised subexpression
+     *
+     * @return mixed
+     */
+    private function searchResponseArrayForLine (array $response, $searchLine) {
+        $matches = [];
         foreach ($response as $imagingLine) {
-            if (preg_match('/^imaging (.*)$/', $imagingLine, $matches)) {
+            if (preg_match($searchLine, $imagingLine, $matches)) {
                 return $matches[1];
             }
         }

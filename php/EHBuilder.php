@@ -26,9 +26,10 @@ class EHBuilder {
     private $pollingQueue = [];
 
 
-    public function __construct (EHServerBuilder $serverBuilder, EHDriveBuilder $driveBuilder) {
+    public function __construct (EHServerBuilder $serverBuilder, EHDriveBuilder $driveBuilder, Runner $runner) {
         $this->serverBuilder = $serverBuilder;
         $this->driveBuilder = $driveBuilder;
+        $this->runner = $runner;
     }
 
     public function build (EHServer $server) {
@@ -44,12 +45,8 @@ class EHBuilder {
 
 
     private function run ($command) {
-        $output = [];
-        $command = escapeshellcmd('./elastichosts.sh ' . $command);
         $this->log("  [running $command]");
-        exec($command, $output);
-        return $output;
-
+        return $this->runner->run($command);
     }
 
 

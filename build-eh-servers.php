@@ -23,7 +23,8 @@ $allGroups = [];
 
 $ehServerBuilder = new EHServerBuilder();
 $ehDriveBuilder = new EHDriveBuilder();
-$ehBuilder = new EHBuilder($ehServerBuilder, $ehDriveBuilder);
+$runner = new CommandLineRunner();
+$ehBuilder = new EHBuilder($ehServerBuilder, $ehDriveBuilder, $runner);
 
 
 
