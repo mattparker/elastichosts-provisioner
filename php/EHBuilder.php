@@ -15,41 +15,102 @@
 
 class EHBuilder {
 
-    use EHLogger;
-
-
+    /**
+     * @var EHServerBuilder
+     */
     private $serverBuilder;
+    /**
+     * @var EHDriveBuilder
+     */
     private $driveBuilder;
 
+    /**
+     * @var Runner
+     */
+    private $runner;
+
+    /**
+     * @var array
+     */
     private $drivesCreated = [];
 
+    /**
+     * @var array
+     */
     private $pollingQueue = [];
 
+    /**
+     * Number of seconds to wait when polling for drive imaging to complete
+     * $var int
+     */
+    const SLEEP_TIMEOUT = 5;
 
+    /**
+     * @var EHLogger
+     */
+    private $logger;
+
+
+    /**
+     * @param EHServerBuilder $serverBuilder
+     * @param EHDriveBuilder  $driveBuilder
+     * @param Runner          $runner
+     */
     public function __construct (EHServerBuilder $serverBuilder, EHDriveBuilder $driveBuilder, Runner $runner) {
         $this->serverBuilder = $serverBuilder;
         $this->driveBuilder = $driveBuilder;
         $this->runner = $runner;
+        // default logger - mostly don't need to inject another one
+        $this->logger = new EHLogger();
     }
 
+
+    /**
+     * Mainly for testing so we can now show the normal CLI progress text
+     * @param $logger
+     */
+    public function setLogger ($logger) {
+        $this->logger = $logger;
+    }
+
+
+    /**
+     * @param EHServer $server
+     */
     public function build (EHServer $server) {
 
         // make drives
         $drives = $server->getDrives();
-        $driveInfo = $this->buildDrives($drives);
+        $this->buildDrives($drives);
 
         $this->waitForDriveImage();
 
     }
 
 
-
+    /**
+     * @param $command
+     *
+     * @return mixed
+     */
     private function run ($command) {
         $this->log("  [running $command]");
         return $this->runner->run($command);
     }
 
 
+
+    /**
+     * @param $message
+     */
+    protected function log ($message) {
+        $this->logger->log($message);
+    }
+
+
+    /**
+     * @param array $drives
+     */
     private function buildDrives (array $drives) {
 
         foreach ($drives as $drive) {
@@ -70,9 +131,11 @@ class EHBuilder {
 
 
     /**
-     * @param $drive
+     *
+     * @param EHDrive $drive
+     *
      */
-    private function createImageOnDrive ($drive) {
+    private function createImageOnDrive (EHDrive $drive) {
         $image = $drive->getImage();
 
         if ($image && constant('EHDriveBuilder::' . $drive->getImage())) {
@@ -87,6 +150,12 @@ class EHBuilder {
     }
 
 
+
+
+    /**
+     * Adds a drive to the queue for drives to check if they've finsihed imaging
+     * @param EHDrive $drive
+     */
     private function pollForImagingComplete (EHDrive $drive) {
         $this->pollingQueue[] = $drive;
     }
@@ -94,6 +163,9 @@ class EHBuilder {
 
 
 
+    /**
+     * Poll the API repeatedly until the drive imaging is complete
+     */
     private function waitForDriveImage () {
 
         $queue = $this->pollingQueue;
@@ -105,8 +177,11 @@ class EHBuilder {
             for ($driveNum = count($queue) - 1; $driveNum >= 0; $driveNum--) {
 
                 $drive = $queue[$driveNum];
+
+                // The call to info contains imaging progress
                 $command = $this->driveBuilder->info($drive);
                 $info = $this->run($command);
+
                 $stillWaiting = $this->driveBuilder->parseResponse($drive, $info, EHDriveBuilder::IS_IMAGING_COMPLETE);
                 if ($stillWaiting === 'false') {
                     unset($queue[$driveNum]);
@@ -114,7 +189,10 @@ class EHBuilder {
 
             }
 
-            sleep(5);
+            // if it's still got some in
+            if (count($queue) > 0) {
+                sleep(self::SLEEP_TIMEOUT);
+            }
 
         }
 

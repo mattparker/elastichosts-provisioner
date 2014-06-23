@@ -5,7 +5,7 @@
  * Time: 14:52
  */
 
-trait EHLogger {
+class EHLogger {
 
 
     public function log ($msg) {
