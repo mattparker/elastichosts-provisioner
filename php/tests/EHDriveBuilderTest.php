@@ -37,7 +37,7 @@ class EHDriveBuilderTest extends PHPUnit_Framework_TestCase {
         $builder = new EHDriveBuilder();
 
         $output = $builder->create($drive);
-        $this->assertEquals('/drives/create name bob123 size 123456', $output);
+        $this->assertEquals(' drives create name bob123 size 123456', $output);
     }
 
     public function  test_create_a_drive_avoiding_other_drives () {
@@ -49,7 +49,7 @@ class EHDriveBuilderTest extends PHPUnit_Framework_TestCase {
         $builder = new EHDriveBuilder();
 
         $output = $builder->create($drive, array('tom987', 'j85'));
-        $this->assertEquals('/drives/create name bob123 size 123456 avoid tom987 j85', $output);
+        $this->assertEquals(' drives create name bob123 size 123456 avoid tom987 j85', $output);
 
     }
 
@@ -72,7 +72,20 @@ class EHDriveBuilderTest extends PHPUnit_Framework_TestCase {
 
 
         $out = $builder->image($drive, EHDriveBuilder::DEBIAN_74);
-        $this->assertEquals('/drives/123098/image/' . EHDriveBuilder::DEBIAN_74, $out);
+        $this->assertEquals(' drives 123098 image ' . EHDriveBuilder::DEBIAN_74, $out);
+
+    }
+
+
+    public function test_info_for_a_drive () {
+        $cfg = new stdClass();
+        $drive = new EHDrive($cfg);
+        $drive->setIdentifier('123098');
+        $builder = new EHDriveBuilder();
+
+
+        $out = $builder->info($drive, EHDriveBuilder::DEBIAN_74);
+        $this->assertEquals(' drives 123098 info', $out);
 
     }
 }
