@@ -15,9 +15,15 @@
 
 class EHBuilder {
 
+    use EHLogger;
+
 
     private $serverBuilder;
     private $driveBuilder;
+
+    private $drivesCreated = [];
+
+    private $pollingQueue = [];
 
 
     public function __construct (EHServerBuilder $serverBuilder, EHDriveBuilder $driveBuilder) {
@@ -27,5 +33,95 @@ class EHBuilder {
 
     public function build (EHServer $server) {
 
+        // make drives
+        $drives = $server->getDrives();
+        $driveInfo = $this->buildDrives($drives);
+
+        $this->waitForDriveImage();
+
     }
+
+
+
+    private function run ($command) {
+        $output = [];
+        $command = escapeshellcmd('./elastichosts.sh ' . $command);
+        $this->log("  [running $command]");
+        exec($command, $output);
+        return $output;
+
+    }
+
+
+    private function buildDrives (array $drives) {
+
+        foreach ($drives as $drive) {
+
+            $command = $this->driveBuilder->create($drive);
+
+            $this->log("Creating drive " . $drive->getName());
+
+            $info = $this->run($command);
+            $this->driveBuilder->parseResponse($drive, $info, EHDriveBuilder::CREATE);
+
+
+            $this->createImageOnDrive($drive);
+
+        }
+    }
+
+
+
+    /**
+     * @param $drive
+     */
+    private function createImageOnDrive ($drive) {
+        $image = $drive->getImage();
+
+        if ($image && constant('EHDriveBuilder::' . $drive->getImage())) {
+
+            $this->log("Creating image on drive " . $image);
+
+            $imageCommand = $this->driveBuilder->image($drive, constant('EHDriveBuilder::' . $drive->getImage()));
+            $this->run($imageCommand);
+
+            $this->pollForImagingComplete($drive);
+        }
+    }
+
+
+    private function pollForImagingComplete (EHDrive $drive) {
+        $this->pollingQueue[] = $drive;
+    }
+
+
+
+
+    private function waitForDriveImage () {
+
+        $queue = $this->pollingQueue;
+
+        while (count($queue) > 0) {
+
+            $this->log("Waiting for drive images to complete...");
+
+            for ($driveNum = count($queue) - 1; $driveNum >= 0; $driveNum--) {
+
+                $drive = $queue[$driveNum];
+                $command = $this->driveBuilder->info($drive);
+                $info = $this->run($command);
+                $stillWaiting = $this->driveBuilder->parseResponse($drive, $info, EHDriveBuilder::IS_IMAGING_COMPLETE);
+                if ($stillWaiting === 'false') {
+                    unset($queue[$driveNum]);
+                }
+
+            }
+
+            sleep(5);
+
+        }
+
+        $this->pollingQueue = [];
+    }
+
 } 
