@@ -39,6 +39,9 @@ class EHBuilderTest extends PHPUnit_Framework_TestCase {
         $drive->size = "10000";
         $serverCfg->drives = array($drive);
 
+        $guid = 'alaksdjfoaksdjf';
+        $this->mockRunner->setGuidFor('drives create', 'drive1', $guid);
+
         $server = new EHServer($serverCfg);
         $this->builder->build($server);
 
@@ -46,22 +49,27 @@ class EHBuilderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, count($driveCreateCall));
         $this->assertContains('name drive1', $driveCreateCall[0]);
         $this->assertContains('size 10000', $driveCreateCall[0]);
-        $this->assertEquals('{guid}', $server->getDrives()[0]->getIdentifier(), 'The {guid} is just the placeholder from the MockRunner');
+        $this->assertEquals($guid, $server->getDrives()[0]->getIdentifier());
 
         $serverCreateCall = $this->mockRunner->getCall('servers create');
         $this->assertEquals(1, count($serverCreateCall));
-        $this->assertContains('ide:0:0 {guid}', $serverCreateCall[0]);
+        $this->assertContains('ide:0:0 ' . $guid, $serverCreateCall[0]);
 
     }
 
     public function test_a_drive_with_image () {
 
-        $serverCfg = new stdClass();
+        $serverCfg = (object)['name' => 'server2'];
         $drive = new stdClass();
         $drive->name = "drive2";
         $drive->size = "100000";
         $drive->image = "DEBIAN_74";
         $serverCfg->drives = array($drive);
+
+        $guid = '{guid}';
+        $this->mockRunner->setGuidFor('drives create', 'drive2', $guid);
+        $guid2 = 'asdf98a0s9df8098fd';
+        $this->mockRunner->setGuidFor('servers create', 'server2', $guid2);
 
         $server = new EHServer($serverCfg);
         $this->builder->build($server);
@@ -70,13 +78,14 @@ class EHBuilderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, count($driveCreateCall));
         $this->assertContains('name drive2', $driveCreateCall[0]);
         $this->assertContains('size 100000', $driveCreateCall[0]);
-        $this->assertEquals('{guid}', $server->getDrives()[0]->getIdentifier(), 'Thats the placeholder from the MockRunner');
+        $this->assertEquals($guid, $server->getDrives()[0]->getIdentifier());
         $driveInfoCall = $this->mockRunner->getCall('drives info');
         $this->assertEquals(1, count($driveInfoCall));
 
         $serverCreateCall = $this->mockRunner->getCall('servers create');
         $this->assertEquals(1, count($serverCreateCall));
-        $this->assertContains('ide:0:0 {guid}', $serverCreateCall[0]);
+        $this->assertContains('ide:0:0 ' . $guid, $serverCreateCall[0]);
+        $this->assertEquals($guid2, $server->getIdentifier());
     }
 
 
@@ -106,6 +115,54 @@ class EHBuilderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, count($serverCreateCall));
         $this->assertContains('ide:0:0 {guid}', $serverCreateCall[0]);
         $this->assertContains('ide:0:1 {guid}', $serverCreateCall[0]);
+    }
+
+
+
+    public function test_building_two_servers_that_avoid_each_other () {
+
+        $server1cfg = (object)[
+            'name' => 'app1',
+            'drives' => [
+                (object)[
+                    'name' => 'drive1',
+                    'size' => '1000000'
+                ],
+                (object)[
+                    'name' => 'drive1b',
+                    'size' => '80080808'
+                ]
+            ]
+        ];
+        $server2cfg = (object)[
+            'name' => 'app2',
+            'avoid' => ['app1'],
+            'drives' => [
+                (object)[
+                    'name' => 'drive2',
+                    'size' => '200000'
+                ]
+            ]
+        ];
+
+        $guid1 = 'asdf98fd9d8fd9f8d9';
+        $this->mockRunner->setGuidFor('servers create', 'app1', $guid1);
+        $guid2 = '98f098f098f';
+        $this->mockRunner->setGuidFor('drives create', 'drive1', $guid2);
+        $guid3 = 'd9f8989f8d';
+        $this->mockRunner->setGuidFor('drives create', 'drive1b', $guid3);
+
+        $server1 = new EHServer($server1cfg);
+        $server2 = new EHServer($server2cfg);
+
+        $this->builder->build($server1);
+        $this->builder->build($server2);
+
+        $serverCreateCall = $this->mockRunner->getCall('servers create');
+        $this->assertEquals(2, count($serverCreateCall));
+
+        $this->assertContains('avoid:servers ' . $guid1, $serverCreateCall[1]);
+        $this->assertContains('avoid:drives ' . $guid2 . ' ' . $guid3, $serverCreateCall[1]);
     }
 }
  

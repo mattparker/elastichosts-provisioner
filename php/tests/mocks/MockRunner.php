@@ -11,6 +11,8 @@ class MockRunner implements Runner {
 
     private $calls = [];
 
+    private $guids = [];
+
     // Set up some dummy responses for testing:
     public function __construct () {
 
@@ -60,7 +62,7 @@ class MockRunner implements Runner {
                 'nic:0:dhcp auto',
                 'nic:0:dhcp:ip 91.203.56.132',
                 'nic:0:model e1000',
-                'server 55559c30-1f11-4363-ac54-dsd98sd98sd',
+                'server {guid}',
                 'smp:cores 1',
                 'started 1403554639',
                 'status active',
@@ -92,7 +94,53 @@ class MockRunner implements Runner {
         }
         $this->calls[$firstBit][] = $command;
 
-        return $this->responses[$firstBit];
+        $response = $this->responses[$firstBit];
+        return $this->substituteGuid($firstBit, $command, $response);
+
+    }
+
+
+    /**
+     *
+     * Will substitute the $guid in the response for a particular command for a given
+     * name of resource (e.g. server name=>bob)
+     *
+     * @param $commandType
+     * @param $name
+     * @param $guid
+     */
+    public function setGuidFor ($commandType, $name, $guid) {
+        $this->guids[$commandType][$name] = $guid;
+    }
+
+
+    /**
+     * Looks to see if this is a 'named' request, and if there's a guid substitute set,
+     * and if so does the substitution.
+     *
+     * @param string $commandType
+     * @param string $command
+     * @param array $response
+     *
+     * @return array
+     */
+    private function substituteGuid ($commandType, $command, array $response = array()) {
+
+        $foundMatches = preg_match('/name ([a-zA-Z0-9]*)/', $command, $matchedNames);
+        if ($foundMatches == 0) {
+            return $response;
+        }
+        $name = $matchedNames[1];
+        if (!array_key_exists($commandType, $this->guids) || !array_key_exists($name, $this->guids[$commandType])) {
+            return $response;
+        }
+
+        $guid = $this->guids[$commandType][$name];
+
+        foreach ($response as $lineNum => $line) {
+            $response[$lineNum] = str_replace('{guid}', $guid, $line);
+        }
+        return $response;
 
     }
 

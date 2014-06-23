@@ -87,7 +87,7 @@ class EHBuilder {
         $this->waitForDriveImage();
 
         // now drives should all have their UUIDs
-        $this->buildServer($server, $server_ids_to_avoid);
+        $this->buildServer($server, $server_ids_to_avoid, $drive_ids_to_avoid);
 
         $this->serversCreated[$server->getName()] = $server;
 
