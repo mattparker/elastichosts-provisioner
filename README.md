@@ -26,7 +26,8 @@ At the moment you can:
 
 ## Usage
 
-Firstly, you need the small elastichosts.sh script [available here](http://elastichosts.co.uk/support/api/).
+Firstly, you need the small elastichosts.sh script [available here](http://elastichosts.co.uk/support/api/) - although
+it's also in this repo right now.
 
 You'll need your credentials in a file 'set-eh-credentials.php' in the root directory.  There's a test version there
 currently: you'll need to get your API key and secret from the ElasticHosts control panel.  The credentials file needs
