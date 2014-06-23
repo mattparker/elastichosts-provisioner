@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This is a small php script that provisions multiple drives and servers on the (ElasticHosts) [http://www.elastichosts.co.uk]
+This is a small php script that provisions multiple drives and servers on the [ElasticHosts](http://www.elastichosts.co.uk)
 cloud.  You provide a .json file describing the servers and drives you want, and they should all just appear.
 
 This is not a full client for the ElasticHosts API: it's only intended for initial provisioning.  It assumes
@@ -26,13 +26,14 @@ At the moment you can:
 
 ## Usage
 
-Firstly, you need the small elastichosts.sh script (available here) [http://elastichosts.co.uk/support/api/].
+Firstly, you need the small elastichosts.sh script [available here](http://elastichosts.co.uk/support/api/).
 
 You'll need your credentials in a file 'set-eh-credentials.php' in the root directory.  There's a test version there
 currently: you'll need to get your API key and secret from the ElasticHosts control panel.  The credentials file needs
 this in it:
 
 ```php
+<?php
 putenv('EHAUTH=<user uuid>:<secret API key>');
 putenv('EHURI=https://api-lon-p.elastichosts.com/');
 ```
@@ -90,7 +91,7 @@ should look something like this:
 Servers and drives have a fair few more config options: I'll write them up but they're mostly the same
 as the ElasticHosts API.
 
-In this example, "avoid": "app1" will request that the drives and server for app2 are on different hardware
+In this example, `"avoid": "app1"` will request that the drives and server for app2 are on different hardware
 to that used by `app1` (using the server name).  For each server, all drives are created first, and imaging happens.
  Everything will wait until imaged drives are ready (it polls until they're done).  Then the server is created.
 
@@ -136,9 +137,11 @@ In rough order of priority for me:
 
 ## License
 
-MIT.
+[MIT](LICENSE)
 
 
 Copyright Matt Parker, Lamplight Database Systems 2014
+
 www.lamplightdb.co.uk
+
 matt@lamplightdb.co.uk
