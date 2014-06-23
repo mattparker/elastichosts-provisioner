@@ -45,7 +45,7 @@ class EHDriveBuilder {
      * @return string
      * @throws LogicException
      */
-    public function create (EHDrive $drive, array $avoidingDrives = array()) {
+    public function create (EHDrive $drive, array $avoidingDrives = null) {
 
         $uri = ' drives create';
         $args = array();

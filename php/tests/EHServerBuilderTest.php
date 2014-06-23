@@ -127,6 +127,32 @@ class EHServerBuilderTest extends PHPUnit_Framework_TestCase {
     }
 
 
+
+    public function test_we_can_avoid_sharing_hardware () {
+        $cfg = (object)[
+            'name' => 'server1',
+            'mem' => '1024',
+            'cpu' => '2000'
+        ];
+        $driveCfg = new stdClass();
+        $cfg->drives = [$driveCfg];
+
+        $eh = new EHServer($cfg);
+        $drive2 = '9fasd09f-as0d9f8sad';
+        $drive1 = 'asdf-sadfasdf';
+        $server1 = 'adf9a0sdf-asd9f8';
+        $server2 = 'adfdaf-asdf9d9f8';
+        $eh->avoidSharingHardwareWithDrives([$drive1, $drive2]);
+        $eh->avoidSharingHardwareWithServers([$server1, $server2]);
+
+        $builder = new EHServerBuilder();
+        $output = $builder->create($eh);
+
+        $this->assertContains('avoid:drives ' . $drive1 . ' ' . $drive2, $output);
+        $this->assertContains('avoid:servers ' . $server1 . ' ' . $server2, $output);
+    }
+
+
     public function test_we_can_get_ip_and_id_from_response () {
 
         $id = '55559c30-1f11-4363-ac54-dsd98sd98sd';
