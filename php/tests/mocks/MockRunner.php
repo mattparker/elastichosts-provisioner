@@ -45,7 +45,27 @@ class MockRunner implements Runner {
                 'write:requests 1'
             ],
 
-            'drives image' => []
+            'drives image' => [],
+            
+            'servers create' => [
+                'boot ide:0:0',
+                'cpu 500',
+                'ide:0:0 6052916e-102f-4db7-abdd-fd98f0d9f8d',
+                'ide:0:0:read:bytes 0',
+                'ide:0:0:read:requests 0',
+                'ide:0:0:write:bytes 0',
+                'ide:0:0:write:requests 0',
+                'mem 256',
+                'name testserver1',
+                'nic:0:dhcp auto',
+                'nic:0:dhcp:ip 91.203.56.132',
+                'nic:0:model e1000',
+                'server 55559c30-1f11-4363-ac54-dsd98sd98sd',
+                'smp:cores 1',
+                'started 1403554639',
+                'status active',
+                'user eeeeeee-1111-1111-ffff-6f6f6f6f6f6'
+            ]
         );
     }
 
