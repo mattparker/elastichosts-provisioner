@@ -10,7 +10,7 @@ require_once 'phpunit-bootstrap.php';
 class EHBuilderTest extends PHPUnit_Framework_TestCase {
 
     /**
-     * @var Runner
+     * @var MockRunner
      */
     private $mockRunner;
 
@@ -43,10 +43,14 @@ class EHBuilderTest extends PHPUnit_Framework_TestCase {
         $this->builder->build($server);
 
         $driveCreateCall = $this->mockRunner->getCall('drives create');
-        $this->assertEquals(count($driveCreateCall), 1);
+        $this->assertEquals(1, count($driveCreateCall));
         $this->assertContains('name drive1', $driveCreateCall[0]);
         $this->assertContains('size 10000', $driveCreateCall[0]);
-        $this->assertEquals('{guid}', $server->getDrives()[0]->getIdentifier(), 'Thats the placeholder from the MockRunner');
+        $this->assertEquals('{guid}', $server->getDrives()[0]->getIdentifier(), 'The {guid} is just the placeholder from the MockRunner');
+
+        $serverCreateCall = $this->mockRunner->getCall('servers create');
+        $this->assertEquals(1, count($serverCreateCall));
+        $this->assertContains('ide:0:0 {guid}', $serverCreateCall[0]);
 
     }
 
@@ -69,6 +73,10 @@ class EHBuilderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('{guid}', $server->getDrives()[0]->getIdentifier(), 'Thats the placeholder from the MockRunner');
         $driveInfoCall = $this->mockRunner->getCall('drives info');
         $this->assertEquals(1, count($driveInfoCall));
+
+        $serverCreateCall = $this->mockRunner->getCall('servers create');
+        $this->assertEquals(1, count($serverCreateCall));
+        $this->assertContains('ide:0:0 {guid}', $serverCreateCall[0]);
     }
 
 
@@ -93,6 +101,11 @@ class EHBuilderTest extends PHPUnit_Framework_TestCase {
 
         $driveCreateCall = $this->mockRunner->getCall('drives create');
         $this->assertEquals(2, count($driveCreateCall));
+
+        $serverCreateCall = $this->mockRunner->getCall('servers create');
+        $this->assertEquals(1, count($serverCreateCall));
+        $this->assertContains('ide:0:0 {guid}', $serverCreateCall[0]);
+        $this->assertContains('ide:0:1 {guid}', $serverCreateCall[0]);
     }
 }
  

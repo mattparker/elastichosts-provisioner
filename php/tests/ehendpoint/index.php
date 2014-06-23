@@ -33,6 +33,11 @@ $routes = array(
         're' => '\/drives\/[a-z0-9\-]*\/info',
         'controller' => 'Drives',
         'action' => 'infoAction'
+    ),
+    array(
+        're' => '\/servers\/create',
+        'controller' => 'Servers',
+        'action' => 'createAction'
     )
 );
 
@@ -56,6 +61,10 @@ echo $response;
 exit;
 
 
+
+
+
+
 class EH {
 
     protected function guid () {
@@ -71,17 +80,17 @@ class Drives extends EH {
         $guid = $this->guid();
 
         return PHP_EOL
-. 'drive ' . $guid  . PHP_EOL
-. 'encryption:cipher aes-xts-plain' . PHP_EOL
-. 'name madeupname' . PHP_EOL
-. 'read:bytes 4096' . PHP_EOL
-. 'read:requests 1' . PHP_EOL
-. 'size 12582912' . PHP_EOL
-. 'status active' . PHP_EOL
-. 'tier disk' . PHP_EOL
-. 'user eeeeeee-1111-1111-ffff-6f6f6f6f6f6' . PHP_EOL
-. 'write:bytes 4096' . PHP_EOL
-. 'write:requests 1' . PHP_EOL;
+            . 'drive ' . $guid  . PHP_EOL
+            . 'encryption:cipher aes-xts-plain' . PHP_EOL
+            . 'name madeupname' . PHP_EOL
+            . 'read:bytes 4096' . PHP_EOL
+            . 'read:requests 1' . PHP_EOL
+            . 'size 12582912' . PHP_EOL
+            . 'status active' . PHP_EOL
+            . 'tier disk' . PHP_EOL
+            . 'user eeeeeee-1111-1111-ffff-6f6f6f6f6f6' . PHP_EOL
+            . 'write:bytes 4096' . PHP_EOL
+            . 'write:requests 1' . PHP_EOL;
 
     }
 
@@ -120,4 +129,36 @@ DRIVELIST;
         . 'write:requests 1' . PHP_EOL;
 
     }
+
+
 }
+
+
+class Servers extends EH {
+
+
+    public function createAction () {
+        $guid = $this->guid();
+        return implode(PHP_EOL, [
+            'boot ide:0:0',
+            'cpu 500',
+            'ide:0:0 6052916e-102f-4db7-abdd-fd98f0d9f8d',
+            'ide:0:0:read:bytes 0',
+            'ide:0:0:read:requests 0',
+            'ide:0:0:write:bytes 0',
+            'ide:0:0:write:requests 0',
+            'mem 256',
+            'name testserver1',
+            'nic:0:dhcp auto',
+            'nic:0:dhcp:ip 91.203.56.132',
+            'nic:0:model e1000',
+            'server ' . $guid,
+            'smp:cores 1',
+            'started 1403554639',
+            'status active',
+            'user eeeeeee-1111-1111-ffff-6f6f6f6f6f6'
+        ]);
+    }
+}
+
+

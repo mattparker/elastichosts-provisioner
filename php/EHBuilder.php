@@ -15,6 +15,8 @@
 
 class EHBuilder {
 
+
+
     /**
      * @var EHServerBuilder
      */
@@ -32,7 +34,7 @@ class EHBuilder {
     /**
      * @var array
      */
-    private $drivesCreated = [];
+    private $serversCreated = [];
 
     /**
      * @var array
@@ -85,6 +87,11 @@ class EHBuilder {
 
         $this->waitForDriveImage();
 
+        // now drives should all have their UUIDs
+        $this->buildServer($server);
+
+        $this->serversCreated[$server->getName()] = $server;
+
     }
 
 
@@ -109,11 +116,29 @@ class EHBuilder {
 
 
     /**
+     * Creates a server with the drives just created
+     *
+     * @param EHServer $server
+     */
+    private function buildServer (EHServer $server) {
+
+        $command = $this->serverBuilder->create($server);
+
+        $this->log("Creating server " . $server->getConfigValue('name'));
+        $info = $this->run($command);
+        $this->serverBuilder->parseResponse($server, $info, EHServerBuilder::CREATE);
+
+    }
+
+
+
+    /**
      * @param array $drives
      */
     private function buildDrives (array $drives) {
 
         foreach ($drives as $drive) {
+            /** @var EHDrive $drive */
 
             $command = $this->driveBuilder->create($drive);
 
