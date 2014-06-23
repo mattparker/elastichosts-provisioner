@@ -8,11 +8,13 @@
                 "mem": 256,
                 "drives": [
                     {
+                        "name": "app1bootdrive",
                         "boot": true,
                         "size": 8000000000,
-                        "image": "debian7"
+                        "image": "DEBIAN_74"
                     },
                     {
+                        "name": "app1data",
                         "boot": false,
                         "size": 2000000000
                     }

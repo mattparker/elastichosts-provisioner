@@ -10,9 +10,12 @@ spl_autoload_register(function ($class) {
 });
 
 
+require_once 'php/set-eh-credentials-test.php';
+
+
 
 $server_definition = file_get_contents('server-inventory.json');
-$json_server_definition = json_decode($server_definition);
+$json_server_definition = json_decode($server_definition, true);
 
 $allGroups = [];
 
@@ -24,10 +27,11 @@ $ehBuilder = new EHBuilder($ehServerBuilder, $ehDriveBuilder);
 
 
 
-foreach ($json_server_definition as $serverGroupName => $serverInfo) {
+foreach ((array)$json_server_definition['servers'] as $serverGroupName => $serverInfo) {
 
     $group = new EHServerGroup($serverGroupName);
     foreach ($serverInfo as $server) {
+
         $server = new EHServer($server);
 
         $ehBuilder->build($server);

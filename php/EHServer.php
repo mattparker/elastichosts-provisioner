@@ -15,7 +15,7 @@ class EHServer implements Server {
 
 
     public function __construct ($config) {
-        $this->config = $config;
+        $this->config = (object)$config;
     }
 
 
@@ -38,7 +38,7 @@ class EHServer implements Server {
         $driveInfo = $this->config->drives;
 
         foreach ($driveInfo as $drive) {
-            $this->drives[] = new EHDrive($drive);
+            $this->drives[] = new EHDrive( (object) $drive);
         }
     }
 
