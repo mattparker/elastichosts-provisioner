@@ -1,3 +1,4 @@
 php/vendor/
 .idea/
 set-eh-credentials.php
+php/tests/coverage/
