@@ -8,6 +8,12 @@
 class EHServerBuilder {
 
 
+
+
+    const CREATE = 1;
+
+
+
     private $properties = [
         'name',
         'cpu',
@@ -32,8 +38,13 @@ class EHServerBuilder {
     ];
 
 
-
-    public function build (EHServer $server) {
+    /**
+     * @param EHServer $server
+     *
+     * @return string
+     * @throws Exception
+     */
+    public function create (EHServer $server) {
 
         $uri = 'servers create';
 
@@ -51,15 +62,53 @@ class EHServerBuilder {
         foreach ($drives as $drive) {
             /** @var EHDrive $drive */
             // get sequentially increasing ide:0:0, ide:0:1, ide:1:0, ide:1:1
-            $deviceId = 'ide:' . (int)($driveCount & 4) . ':' . (int)($driveCount & 2);
+            $deviceId = 'ide:' . (int)(($driveCount & 2) > 0) . ':' . (int)(($driveCount & 1) > 0);
             $uri .= ' ' . $deviceId . ' ' . $drive->getIdentifier();
             $driveCount++;
         }
-        if ($driveCount >= 4) {
+        if ($driveCount > 4) {
             throw new Exception("Don't think you can have more than four drives on one server through the API");
         }
 
 
         return $uri;
+
+    }
+
+
+    /**
+     * @param EHServer $server
+     * @param array    $response
+     * @param          $action
+     *
+     * @throws InvalidArgumentException
+     */
+    public function parseResponse (EHServer $server, array $response = array(), $action) {
+
+        if ($action !== self::CREATE) {
+            throw new InvalidArgumentException("The only thing we know how to handle right now is creation");
+        }
+
+        $publicIp = $this->searchResponseArrayForLine($response, '/^nic:0:dhcp:ip ([0-9\.]*)$/');
+        $serverId = $this->searchResponseArrayForLine($response, '/^server (.*)$/');
+        $server->setPublicIp($publicIp);
+        $server->setIdentifier($serverId);
+
+    }
+
+
+    /**
+     * @param array $response
+     * @param string $searchLine  Regexp to look for, with one parameterised subexpression
+     *
+     * @return mixed
+     */
+    private function searchResponseArrayForLine (array $response, $searchLine) {
+        $matches = [];
+        foreach ($response as $imagingLine) {
+            if (preg_match($searchLine, $imagingLine, $matches)) {
+                return $matches[1];
+            }
+        }
     }
 } 

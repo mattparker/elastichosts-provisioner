@@ -19,6 +19,15 @@ class EHServer implements Server {
      */
     private $drives = null;
 
+    /**
+     * @var string
+     */
+    private $identifier;
+
+    /**
+     * @var string
+     */
+    private $public_ip;
 
     /**
      * @param array|object $config Properties for server - see EH docs
@@ -42,6 +51,15 @@ class EHServer implements Server {
 
 
     /**
+     * @return string
+     */
+    public function getName () {
+        return $this->getConfigValue('name');
+    }
+
+
+
+    /**
      * @param $prop string
      *
      * @return mixed
@@ -52,6 +70,37 @@ class EHServer implements Server {
         }
         return null;
     }
+
+    /**
+     * @param string $identifier
+     */
+    public function setIdentifier ($identifier) {
+        $this->identifier = $identifier;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIdentifier () {
+        return $this->identifier;
+    }
+
+    /**
+     * @param string $public_ip
+     */
+    public function setPublicIp ($public_ip) {
+        $this->public_ip = $public_ip;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPublicIp () {
+        return $this->public_ip;
+    }
+
+
+
 
 
     /**
