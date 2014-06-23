@@ -22,6 +22,11 @@ class EHDriveBuilder {
     const WIN_2012_SQL     = '7b9807cc-3c92-425f-878c-1d45927f3f9c';
 
 
+    const CREATE = 1;
+    const IS_IMAGING_COMPLETE = 2;
+
+
+
     /**
      * @param EHDrive $drive
      * @param array   $avoidingDrives
@@ -31,7 +36,7 @@ class EHDriveBuilder {
      */
     public function create (EHDrive $drive, array $avoidingDrives = array()) {
 
-        $uri = '/drives/create';
+        $uri = ' drives create';
         $args = array();
 
         $name = $drive->getName();
@@ -54,6 +59,8 @@ class EHDriveBuilder {
     }
 
 
+
+
     /**
      * @param EHDrive $drive
      * @param string  $imageName   Use a constant, e.g. EHDriveBuilder::DEBIAN_74
@@ -67,7 +74,47 @@ class EHDriveBuilder {
         if (!$id) {
             throw new LogicException("The drive needs to be created and have and ID before imaging");
         }
-        return '/drives/' . $id . '/image/' . $imageName;
+        return ' drives ' . $id . ' image ' . $imageName;
 
+    }
+
+
+    public function info (EHDrive $drive) {
+        $id = $drive->getIdentifier();
+        if (!$id) {
+            throw new InvalidArgumentException("Cannot get info from a drive that does not have an ID");
+        }
+        return ' drives ' . $id . ' info';
+    }
+
+
+
+    public function parseResponse (EHDrive $drive, array $response, $action) {
+        switch ($action) {
+            case EHDriveBuilder::CREATE:
+                return $this->parseResponseCreate($drive, $response);
+                break;
+            case EHDriveBuilder::IS_IMAGING_COMPLETE:
+                return $this->parseResponseForImagingComplete($drive, $response);
+                break;
+        }
+
+    }
+
+    private function parseResponseCreate (EHDrive $drive, array $response) {
+        foreach ($response as $driveName) {
+            if (preg_match('/^drive (.*)$/', $driveName, $matches)) {
+                $driveIdentifier = $matches[1];
+                $drive->setIdentifier($driveIdentifier);
+            }
+        }
+    }
+
+    private function parseResponseForImagingComplete (EHDrive $drive, array $response) {
+        foreach ($response as $imagingLine) {
+            if (preg_match('/^imaging (.*)$/', $imagingLine, $matches)) {
+                return $matches[1];
+            }
+        }
     }
 } 

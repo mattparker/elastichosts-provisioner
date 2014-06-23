@@ -58,6 +58,17 @@ class EHDrive implements Drive {
     }
 
 
+    /**
+     * @return string
+     */
+    public function getImage () {
+        if (!property_exists($this->config, 'image')) {
+            return '';
+        }
+        return $this->config->image;
+    }
+
+
 
 
     /**
