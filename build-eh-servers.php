@@ -10,7 +10,7 @@ spl_autoload_register(function ($class) {
 });
 
 
-require_once 'php/set-eh-credentials-test.php';
+require_once './set-eh-credentials-test.php';
 
 
 
