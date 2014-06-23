@@ -8,19 +8,16 @@
 class EHServerBuilder {
 
 
-    private $driveBuilder;
 
 
+    public function __construct() {
 
-    public function __construct(DriveBuilder $driveBuilder) {
-        $this->driveBuilder = $driveBuilder;
     }
 
 
 
     public function build (Server $server) {
 
-        // first make drives
 
         // then make servers
     }
