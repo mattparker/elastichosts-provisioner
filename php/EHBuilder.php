@@ -32,7 +32,7 @@ class EHBuilder {
     private $runner;
 
     /**
-     * @var array
+     * @var EHServer[]
      */
     private $serversCreated = [];
 
@@ -67,33 +67,55 @@ class EHBuilder {
     }
 
 
-    /**
-     * Mainly for testing so we can now show the normal CLI progress text
-     * @param $logger
-     */
-    public function setLogger ($logger) {
-        $this->logger = $logger;
-    }
-
 
     /**
      * @param EHServer $server
      */
     public function build (EHServer $server) {
 
+        $avoidSharingHardware = $server->getConfigValue('avoid');
+        $drive_ids_to_avoid = null;
+        $server_ids_to_avoid = null;
+        if ($avoidSharingHardware !== null) {
+            list($server_ids_to_avoid, $drive_ids_to_avoid) = $this->getServerAndDriveIds($avoidSharingHardware);
+        }
+
         // make drives
         $drives = $server->getDrives();
-        $this->buildDrives($drives);
+        $this->buildDrives($drives, $drive_ids_to_avoid);
 
         $this->waitForDriveImage();
 
         // now drives should all have their UUIDs
-        $this->buildServer($server);
+        $this->buildServer($server, $server_ids_to_avoid);
 
         $this->serversCreated[$server->getName()] = $server;
 
     }
 
+
+    /**
+     * Given a list of (user-supplied) server names, find their (ElasticHosts guid) server and drive IDs
+     *
+     * @param array $serverNames First item is array of server guids, Second is array of drive guids
+     *
+     * @return array
+     */
+    private function getServerAndDriveIds (array $serverNames = array()) {
+
+        $server_ids = [];
+        $drive_ids = [];
+
+        foreach ($serverNames as $serverName) {
+            if (!array_key_exists($serverName, $this->serversCreated)) {
+                continue;
+            }
+            $serverToAvoid = $this->serversCreated[$serverName];
+            $server_ids[] = $serverToAvoid->getIdentifier();
+            $drive_ids += $serverToAvoid->getDriveIdentifiers();
+        }
+        return [$server_ids, $drive_ids];
+    }
 
     /**
      * @param $command
@@ -108,6 +130,14 @@ class EHBuilder {
 
 
     /**
+     * Mainly for testing so we can now show the normal CLI progress text
+     * @param $logger
+     */
+    public function setLogger ($logger) {
+        $this->logger = $logger;
+    }
+
+    /**
      * @param $message
      */
     protected function log ($message) {
@@ -119,8 +149,18 @@ class EHBuilder {
      * Creates a server with the drives just created
      *
      * @param EHServer $server
+     * @param array    $serverIdsToAvoid
+     * @param array    $driveIdsToAvoid
      */
-    private function buildServer (EHServer $server) {
+    private function buildServer (EHServer $server, array $serverIdsToAvoid = null, array $driveIdsToAvoid = null) {
+
+        if ($serverIdsToAvoid) {
+            $server->avoidSharingHardwareWithServers($serverIdsToAvoid);
+        }
+        if ($driveIdsToAvoid) {
+            $server->avoidSharingHardwareWithDrives($driveIdsToAvoid);
+        }
+
 
         $command = $this->serverBuilder->create($server);
 
@@ -134,13 +174,14 @@ class EHBuilder {
 
     /**
      * @param array $drives
+     * @param array $driveIdsToAvoid Don't want to share hardware with...
      */
-    private function buildDrives (array $drives) {
+    private function buildDrives (array $drives, array $driveIdsToAvoid = null) {
 
         foreach ($drives as $drive) {
             /** @var EHDrive $drive */
 
-            $command = $this->driveBuilder->create($drive);
+            $command = $this->driveBuilder->create($drive, $driveIdsToAvoid);
 
             $this->log("Creating drive " . $drive->getName());
 

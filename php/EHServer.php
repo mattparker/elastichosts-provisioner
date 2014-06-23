@@ -29,6 +29,8 @@ class EHServer implements Server {
      */
     private $public_ip;
 
+
+
     /**
      * @param array|object $config Properties for server - see EH docs
      */
@@ -51,6 +53,20 @@ class EHServer implements Server {
 
 
     /**
+     * Gets the ElasticHosts assigned drive identifiers (guids)
+     * @return array
+     */
+    public function getDriveIdentifiers () {
+
+        $ret = [];
+        foreach ($this->getDrives() as $drive) {
+            $ret[] = $drive->getIdentifier();
+        }
+        return $ret;
+    }
+
+
+    /**
      * @return string
      */
     public function getName () {
@@ -69,6 +85,23 @@ class EHServer implements Server {
             return $this->config->{$prop};
         }
         return null;
+    }
+
+
+    /**
+     * @param array $server_ids
+     */
+    public function avoidSharingHardwareWithServers (array $server_ids) {
+        $prop = 'avoid:servers';
+        $this->config->$prop = implode(' ', $server_ids);
+    }
+
+    /**
+     * @param array $drive_ids
+     */
+    public function avoidSharingHardwareWithDrives (array $drive_ids) {
+        $prop = 'avoid:drives';
+        $this->config->$prop = implode(' ', $drive_ids);
     }
 
     /**
