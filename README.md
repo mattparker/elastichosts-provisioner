@@ -261,7 +261,7 @@ In rough order of priority for me:
  - [x] Some more error checking
  - [x] Allow command line option to set credentials file
  - [x] Allow command line option to set inventory file
- - [ ] Ability to create a VLAN
+ - [x] Ability to create a VLAN
  - [ ] Could refactor response parsing out into separate classes
  - [ ] Look at a VirtualBox implementation for testing (ie to create servers in VirtualBox locally from the same inventory file).
 
