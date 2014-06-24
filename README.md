@@ -140,23 +140,23 @@ as the [ElasticHosts API](http://elastichosts.co.uk/support/api/).
 
 With this example, roughly what'll happen (in this order):
 
-- 1. Create a VLAN
-- 2. Create drive app1bootdrive.
-- 3. Create drive app1data (as an SSD disk)
-- 4. Poll every few seconds until the imaging is complete on `app1bootdrive`.
-- 5. Create server `app1`, with two drives attached (and `app1bootdrive` as boot drive) and attached to the VLAN.
+1. Create a VLAN
+2. Create drive app1bootdrive.
+3. Create drive app1data (as an SSD disk)
+4. Poll every few seconds until the imaging is complete on `app1bootdrive`.
+5. Create server `app1`, with two drives attached (and `app1bootdrive` as boot drive) and attached to the VLAN.
     It will be attached to the VLAN because a) we created one using the `vlan` item, and b) we specified a model
     for the second NIC card.  A couple of other gotchas: the VNC password cannot be longer than 8 characters.
     And if you don't specify `"persistent": "true"` the server will disappear if you shut it down.
-- 6. Create drive `app2bootdrive`, requesting that it avoid sharing hardware with server `app1`, or the drives attached
+6. Create drive `app2bootdrive`, requesting that it avoid sharing hardware with server `app1`, or the drives attached
     to `app1` (ie `app1bootdrive` and `app1data`)
-- 7. Poll every few seconds until the imaging is complete on `app2bootdrive`.
-- 8. Create server `app2`, with drive `app2bootdrive` but not linked to the VLAN and not persistent.  Again it will request
+7. Poll every few seconds until the imaging is complete on `app2bootdrive`.
+8. Create server `app2`, with drive `app2bootdrive` but not linked to the VLAN and not persistent.  Again it will request
     that the server does not share any hardware with `app1` or the drives linked to `app1`.
-- 9. Create drive `db1bootdrive`, avoiding all hardware involved with `app1` and `app2`.
-- 10. Wait until the Windows Web server 2008 + SQL imaging is done.
-- 11. Create server `db`, again avoiding `app1` and `app2` hardware.
-- 12. Write out the .yml inventory file for use with Ansible.
+9. Create drive `db1bootdrive`, avoiding all hardware involved with `app1` and `app2`.
+10. Wait until the Windows Web server 2008 + SQL imaging is done.
+11. Create server `db`, again avoiding `app1` and `app2` hardware.
+12. Write out the .yml inventory file for use with Ansible.
 
 
 This will all happen in order, so your 'avoid' statements need to be down the list (i.e. it won't work to try and
