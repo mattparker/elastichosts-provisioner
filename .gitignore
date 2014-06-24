@@ -2,3 +2,5 @@ php/vendor/
 .idea/
 set-eh-credentials.php
 php/tests/coverage/
+./servers-created.yml
+./server-inventory-*

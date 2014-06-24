@@ -19,20 +19,57 @@
                         "size": 2000000000
                     }
                 ]
-
-
+            },
+            {
+                "name": "app2",
+                "cpu": 500,
+                "mem": 256,
+                "drives": [
+                    {
+                        "name": "app2bootdrive",
+                        "boot": true,
+                        "size": 8000000000,
+                        "image": "DEBIAN_74"
+                    },
+                    {
+                        "name": "app2data",
+                        "boot": false,
+                        "size": 2000000000
+                    }
+                ],
+                "avoid": ["app1"]
             }
         ],
 
         "db": [
+            {
+                "name": "db-cluster1",
+                "cpu": 500,
+                "mem": 256,
+                "drives": [
+                    {
+                        "name": "db1bootdrive",
+                        "boot": true,
+                        "size": 8000000000,
+                        "image": "DEBIAN_74"
+                    },
+                    {
+                        "name": "db1data",
+                        "boot": false,
+                        "size": 2000000000
+                    }
+                ]
 
-        ],
 
-        "loadbal": [
-
+            }
         ]
 
 
+    },
+
+    "meta": {
+        "inventory-version": "0.1",
+        "author": "Matt Parker"
     }
 
 }
