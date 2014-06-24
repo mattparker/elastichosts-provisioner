@@ -21,7 +21,7 @@ class EHBuilder {
      * Number of seconds to wait when polling for drive imaging to complete
      * $var int
      */
-    const SLEEP_TIMEOUT = 5;
+    private $sleep_timeout = 5;
 
 
 
@@ -35,6 +35,11 @@ class EHBuilder {
      * @var EHDriveBuilder
      */
     private $driveBuilder;
+
+    /**
+     * @var EHVlanBuilder
+     */
+    private $vlanBuilder;
 
     /**
      * @var Runner
@@ -104,6 +109,36 @@ class EHBuilder {
 
 
     /**
+     * Inject the VLAN builder if it's needed
+     * @param EHVlanBuilder $builder
+     */
+    public function setVlanBuilder (EHVlanBuilder $builder) {
+        $this->vlanBuilder = $builder;
+    }
+
+
+    /**
+     * @param string $name Name of VLAN network to make
+     *
+     * @throws RuntimeException
+     */
+    public function buildVlan ($name = '') {
+
+        $builder = $this->vlanBuilder;
+        if (!$builder) {
+            throw new RuntimeException("An EHVlanBuilder needs to be injected to create a VLAN");
+        }
+        $command = $builder->create($name);
+
+        $response = $this->runner->run($command[0], $command[1]);
+
+        $id = $builder->parseResponse($response);
+        $this->setVlanId($id);
+
+    }
+
+
+    /**
      * Given a list of (user-supplied) server names, find their (ElasticHosts guid) server and drive IDs
      *
      * @param array $serverNames First item is array of server guids, Second is array of drive guids
@@ -156,6 +191,14 @@ class EHBuilder {
         $this->vlan_guid = $id;
     }
 
+
+    /**
+     * How long to wait before polling for imaging to be complete
+     * @param $time
+     */
+    public function setPollingTimeout ($time) {
+        $this->sleep_timeout = (int)$time;
+    }
 
 
     /**
@@ -279,7 +322,7 @@ class EHBuilder {
 
             // if it's still got some in
             if (count($queue) > 0) {
-                sleep(self::SLEEP_TIMEOUT);
+                sleep($this->sleep_timeout);
             }
 
         }

@@ -272,5 +272,24 @@ class EHServerBuilderTest extends PHPUnit_Framework_TestCase {
         $this->assertContains('servers create', $output[0]);
         $this->assertNotContains('nic:1:vlan', $output[1]);
     }
+
+    public function test_parse_response_for_unknown_action () {
+        $builder = new EHServerBuilder();
+        $server = new EHServer((object)[]);
+        $this->setExpectedException('InvalidArgumentException');
+        $builder->parseResponse($server, [], 4985);
+    }
+
+
+    public function test_parse_response_when_line_not_present () {
+        $builder = new EHServerBuilder();
+        $server = new EHServer((object)[]);
+        $response = [];
+        $builder->parseResponse($server, $response, EHServerBuilder::CREATE);
+
+        $this->assertEquals(null, $server->getPublicIp());
+        $this->assertEquals(null, $server->getIdentifier());
+    }
+
 }
  

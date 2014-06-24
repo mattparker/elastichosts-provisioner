@@ -88,6 +88,25 @@ class EHBuilderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($guid2, $server->getIdentifier());
     }
 
+    public function test_we_keep_polling_if_drives_arent_ready () {
+        $serverCfg = (object)['name' => 'server2'];
+        $drive = (object)[
+            'name' => "drive2",
+            'size' => "100000",
+            'image' => "DEBIAN_74"
+        ];
+        $serverCfg->drives = array($drive);
+
+        $this->mockRunner->delayDriveImaging();
+        $this->builder->setPollingTimeout(1);
+        $now = microtime(true);
+
+        $server = new EHServer($serverCfg);
+        $this->builder->build($server);
+
+        $this->assertGreaterThan(0.95, microtime(true) - $now, 'It waits a second to poll again');
+    }
+
 
     public function test_with_two_drives () {
 
@@ -163,6 +182,69 @@ class EHBuilderTest extends PHPUnit_Framework_TestCase {
 
         $this->assertContains('avoid:servers ' . $guid1, $serverCreateCall[1]);
         $this->assertContains('avoid:drives ' . $guid2 . ' ' . $guid3, $serverCreateCall[1]);
+    }
+
+
+    public function test_we_ignore_servers_we_havent_created_when_avoiding () {
+        $server1cfg = (object)[
+            'name' => 'app1',
+            'drives' => [
+                (object)[
+                    'name' => 'drive1',
+                    'size' => '1000000'
+                ],
+                (object)[
+                    'name' => 'drive1b',
+                    'size' => '80080808'
+                ]
+            ]
+        ];
+        $server2cfg = (object)[
+            'name' => 'app2',
+            'avoid' => ['app1', 'unknownserver1', 'anotherwedontknow'],
+            'drives' => [
+                (object)[
+                    'name' => 'drive2',
+                    'size' => '200000'
+                ]
+            ]
+        ];
+
+        $guid1 = 'asdf98fd9d8fd9f8d9';
+        $this->mockRunner->setGuidFor('servers create', 'app1', $guid1);
+        $guid2 = '98f098f098f';
+        $this->mockRunner->setGuidFor('drives create', 'drive1', $guid2);
+        $guid3 = 'd9f8989f8d';
+        $this->mockRunner->setGuidFor('drives create', 'drive1b', $guid3);
+
+        $server1 = new EHServer($server1cfg);
+        $server2 = new EHServer($server2cfg);
+
+        $this->builder->build($server1);
+        $this->builder->build($server2);
+
+        $serverCreateCall = $this->mockRunner->getCall('servers create');
+        $this->assertEquals(2, count($serverCreateCall));
+
+        $this->assertContains('avoid:servers ' . $guid1, $serverCreateCall[1]);
+        $this->assertContains('avoid:drives ' . $guid2 . ' ' . $guid3, $serverCreateCall[1]);
+    }
+
+
+    public function test_create_a_vlan () {
+        $vlanBuilder = new EHVlanBuilder();
+        $this->builder->setVlanBuilder($vlanBuilder);
+        $this->builder->buildVlan('helen');
+
+        $createCall = $this->mockRunner->getCall('resources vlan');
+        $this->assertEquals(1, count($createCall));
+        $this->assertContains('name helen', $createCall[0]);
+    }
+
+
+    public function test_we_require_the_vlan_builder () {
+        $this->setExpectedException('RuntimeException');
+        $this->builder->buildVlan('helen');
     }
 }
  

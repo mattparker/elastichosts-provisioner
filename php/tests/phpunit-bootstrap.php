@@ -15,5 +15,7 @@ require_once __DIR__ . '/../EHLogger.php';
 require_once __DIR__ . '/../EHBuilder.php';
 require_once __DIR__ . '/../EHVlanBuilder.php';
 require_once __DIR__ . '/../Runner.php';
+require_once __DIR__ . '/../ServerGroup.php';
+require_once __DIR__ . '/../EHServerGroup.php';
 require_once __DIR__ . '/mocks/MockRunner.php';
 require_once __DIR__ . '/mocks/MockLogger.php';

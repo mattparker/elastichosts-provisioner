@@ -33,5 +33,17 @@ class EHVlanBuilderTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals($guid, $found);
     }
+
+    public function test_parse_response_when_resource_not_present () {
+        $response = [
+            'name 2G',
+            'type vlan',
+            'user cccccccc-0000-cccc-8888-eeeeeeeeeee'
+        ];
+        $builder = new EHVlanBuilder();
+        $found = $builder->parseResponse($response);
+
+        $this->assertEquals(null, $found);
+    }
 }
  

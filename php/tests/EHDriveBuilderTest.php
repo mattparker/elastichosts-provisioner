@@ -64,11 +64,20 @@ class EHDriveBuilderTest extends PHPUnit_Framework_TestCase {
         $drive = new EHDrive($cfg);
         $builder = new EHDriveBuilder();
 
-        $this->setExpectedException('LogicException');
+        $this->setExpectedException('RuntimeException');
         $builder->image($drive, EHDriveBuilder::DEBIAN_74);
 
     }
 
+
+    public function test_info_a_drive_with_no_id () {
+        $cfg = new stdClass();
+        $drive = new EHDrive($cfg);
+        $builder = new EHDriveBuilder();
+
+        $this->setExpectedException('RuntimeException');
+        $builder->info($drive);
+    }
 
     public function test_image_a_drive () {
         $cfg = new stdClass();
@@ -120,6 +129,47 @@ class EHDriveBuilderTest extends PHPUnit_Framework_TestCase {
 
         $output = $builder->create($drive);
         $this->assertContains('tier ssd', $output[1]);
+    }
+
+    public function test_parse_response_throws_when_invalid_action () {
+
+        $builder = new EHDriveBuilder();
+        $drive = new EHDrive((object)[]);
+        $this->setExpectedException('InvalidArgumentException');
+        $builder->parseResponse($drive, [], 9834);
+
+    }
+
+
+    public function test_we_see_when_imaging_complete_when_it_says_status_active () {
+        $builder = new EHDriveBuilder();
+        $drive = new EHDrive((object)[]);
+        $response = [
+            'name bob123',
+            'cpu 123',
+            'mem 100000',
+            'status active',
+            'nic:0:model e1000'
+        ];
+        $done = $builder->parseResponse($drive, $response, EHDriveBuilder::IS_IMAGING_COMPLETE);
+        $this->assertEquals('false', $done);
+
+    }
+
+
+
+    public function test_we_see_when_imaging_complete_when_active_and_imaging_are_absent () {
+        $builder = new EHDriveBuilder();
+        $drive = new EHDrive((object)[]);
+        $response = [
+            'name bob123',
+            'cpu 123',
+            'mem 100000',
+            'nic:0:model e1000'
+        ];
+        $done = $builder->parseResponse($drive, $response, EHDriveBuilder::IS_IMAGING_COMPLETE);
+        $this->assertEquals('', $done);
+
     }
 }
  

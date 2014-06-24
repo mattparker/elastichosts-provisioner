@@ -82,13 +82,13 @@ class EHDriveBuilder {
      * @param string  $imageName   Use a constant, e.g. EHDriveBuilder::DEBIAN_74
      *
      * @return string
-     * @throws LogicException
+     * @throws RuntimeException
      */
     public function image (EHDrive $drive, $imageName) {
 
         $id = $drive->getIdentifier();
         if (!$id) {
-            throw new LogicException("The drive needs to be created and have and ID before imaging");
+            throw new RuntimeException("The drive needs to be created and have and ID before imaging");
         }
         return [' drives ' . $id . ' image ' . $imageName . ' gunzip', []];
 
@@ -101,12 +101,12 @@ class EHDriveBuilder {
      * @param EHDrive $drive
      *
      * @return string
-     * @throws InvalidArgumentException
+     * @throws RuntimeException
      */
     public function info (EHDrive $drive) {
         $id = $drive->getIdentifier();
         if (!$id) {
-            throw new InvalidArgumentException("Cannot get info from a drive that does not have an ID");
+            throw new RuntimeException("Cannot get info from a drive that does not have an ID");
         }
         return [' drives ' . $id . ' info', []];
     }
@@ -117,6 +117,7 @@ class EHDriveBuilder {
      * @param array   $response
      * @param         $action
      *
+     * @throws InvalidArgumentException
      * @return mixed
      */
     public function parseResponse (EHDrive $drive, array $response, $action) {
@@ -128,7 +129,7 @@ class EHDriveBuilder {
                 return $this->parseResponseForImagingComplete($response);
                 break;
         }
-        return null;
+        throw new InvalidArgumentException("Don't know what $action is to parse response");
     }
 
     /**

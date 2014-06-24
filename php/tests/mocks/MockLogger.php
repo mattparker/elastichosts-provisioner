@@ -5,6 +5,10 @@
  * Time: 16:37
  */
 
+
+/**
+ * @codeCoverageIgnore
+ */
 class MockLogger {
 
 

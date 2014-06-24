@@ -12,7 +12,12 @@ class EHDriveTest extends PHPUnit_Framework_TestCase {
 
     public function test_instance () {
         $cfg = new stdClass();
-        $drive = new EHDrive($cfg);
+        new EHDrive($cfg);
+    }
+
+    public function test_a_drive_with_no_name () {
+        $drive = new EHDrive((object)[]);
+        $this->assertEquals('', $drive->getName());
     }
 
 }

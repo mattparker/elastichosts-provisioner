@@ -5,6 +5,9 @@
  * Time: 16:33
  */
 
+/**
+ * @codeCoverageIgnore
+ */
 class MockRunner implements Runner {
 
     private $responses = [];
@@ -12,6 +15,8 @@ class MockRunner implements Runner {
     private $calls = [];
 
     private $guids = [];
+
+    private $delay_drive_imaging = false;
 
     // Set up some dummy responses for testing:
     public function __construct () {
@@ -67,6 +72,13 @@ class MockRunner implements Runner {
                 'started 1403554639',
                 'status active',
                 'user eeeeeee-1111-1111-ffff-6f6f6f6f6f6'
+            ],
+
+            'resources vlan' => [
+                'name 2G',
+                'resource {guid}',
+                'type vlan',
+                'user cccccccc-0000-cccc-8888-eeeeeeeeeee'
             ]
         );
     }
@@ -98,6 +110,16 @@ class MockRunner implements Runner {
         $this->calls[$firstBit][] = $args;
 
         $response = $this->responses[$firstBit];
+
+        if ($firstBit === 'drives info' && $this->delay_drive_imaging) {
+            foreach ($response as $line => $r) {
+                if ($r === 'imaging false') {
+                    $response[$line] = 'imaging true';
+                }
+                $this->delay_drive_imaging = false;
+            }
+        }
+
         return $this->substituteGuid($firstBit, $command . implode(' ', $args), $response);
 
     }
@@ -114,6 +136,14 @@ class MockRunner implements Runner {
      */
     public function setGuidFor ($commandType, $name, $guid) {
         $this->guids[$commandType][$name] = $guid;
+    }
+
+
+    /**
+     * This will make it give a response that imaging is not complete
+     */
+    public function delayDriveImaging () {
+        $this->delay_drive_imaging = true;
     }
 
 
@@ -146,7 +176,6 @@ class MockRunner implements Runner {
         return $response;
 
     }
-
 
     /**
      * All the calls made
