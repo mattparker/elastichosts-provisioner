@@ -74,11 +74,14 @@ class MockRunner implements Runner {
 
     /**
      * Returns something like what the API returns.
+     *
      * @param string $command
+     *
+     * @param array  $args
      *
      * @return array
      */
-    public function run ($command) {
+    public function run ($command, array $args = array()) {
 
         $command = trim($command);
         $bits = explode(' ', $command);
@@ -92,10 +95,10 @@ class MockRunner implements Runner {
         if (!array_key_exists($firstBit, $this->calls)) {
             $this->calls[$firstBit] = [];
         }
-        $this->calls[$firstBit][] = $command;
+        $this->calls[$firstBit][] = $args;
 
         $response = $this->responses[$firstBit];
-        return $this->substituteGuid($firstBit, $command, $response);
+        return $this->substituteGuid($firstBit, $command . implode(' ', $args), $response);
 
     }
 
