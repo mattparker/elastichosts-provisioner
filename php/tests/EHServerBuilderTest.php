@@ -11,7 +11,7 @@ class EHServerBuilderTest extends PHPUnit_Framework_TestCase {
 
 
     public function test_instance () {
-        $builder = new EHServerBuilder();
+        new EHServerBuilder();
     }
 
 
@@ -53,14 +53,14 @@ class EHServerBuilderTest extends PHPUnit_Framework_TestCase {
 
         $output = $builder->create($server);
 
-        $this->assertContains('servers create', $output);
-        $this->assertContains('name testserver1', $output);
-        $this->assertContains('cpu 500', $output);
-        $this->assertContains('mem 256', $output);
-        $this->assertContains('nic:0:model e1000', $output);
-        $this->assertContains('nic:0:dhcp auto', $output);
-        $this->assertContains('boot ide:0:0', $output);
-        $this->assertContains('ide:0:0 abc123', $output);
+        $this->assertContains('servers create', $output[0]);
+        $this->assertContains('name testserver1', $output[1]);
+        $this->assertContains('cpu 500', $output[1]);
+        $this->assertContains('mem 256', $output[1]);
+        $this->assertContains('nic:0:model e1000', $output[1]);
+        $this->assertContains('nic:0:dhcp auto', $output[1]);
+        $this->assertContains('boot ide:0:0', $output[1]);
+        $this->assertContains('ide:0:0 abc123', $output[1]);
     }
 
     public function test_a_server_with_lots_of_drives () {
@@ -89,10 +89,10 @@ class EHServerBuilderTest extends PHPUnit_Framework_TestCase {
         $builder = new EHServerBuilder();
 
         $output = $builder->create($server);
-        $this->assertContains('ide:0:0 driveid1', $output);
-        $this->assertContains('ide:0:1 driveid2', $output);
-        $this->assertContains('ide:1:0 driveid3', $output);
-        $this->assertContains('ide:1:1 driveid4', $output);
+        $this->assertContains('ide:0:0 driveid1', $output[1]);
+        $this->assertContains('ide:0:1 driveid2', $output[1]);
+        $this->assertContains('ide:1:0 driveid3', $output[1]);
+        $this->assertContains('ide:1:1 driveid4', $output[1]);
     }
 
 
@@ -148,8 +148,8 @@ class EHServerBuilderTest extends PHPUnit_Framework_TestCase {
         $builder = new EHServerBuilder();
         $output = $builder->create($eh);
 
-        $this->assertContains('avoid:drives ' . $drive1 . ' ' . $drive2, $output);
-        $this->assertContains('avoid:servers ' . $server1 . ' ' . $server2, $output);
+        $this->assertContains('avoid:drives ' . $drive1 . ' ' . $drive2, $output[1]);
+        $this->assertContains('avoid:servers ' . $server1 . ' ' . $server2, $output[1]);
     }
 
 
