@@ -11,7 +11,10 @@ to recreate the entire environment programatically: this bit will make the serve
 
 You need php 5.4 or above on the machine you're running this on.
 
-This is version 0.1
+This is version 0.2
+
+I should probably say there is no affiliation with ElasticHosts and while they know about this there's no
+endorsement or anything.
 
 
 ## Current features
@@ -22,6 +25,18 @@ At the moment you can:
  - set an image for a drive (from the set ElasticHosts provides)
  - create a server with up to 4 drives
  - set a server to avoid sharing hardware with any others
+ - write out a simple ansible .yml inventory file for the servers you've just created
+
+
+## CLI options
+
+    -i     Path to inventory file.  If not given, will try and use ./server-inventory.json
+    -c     Path to credentials file.  If not given, will try and use ./set-eh-credentials.php
+    -p     Provider - where you want servers to appear. This is ignored at the moment.
+    -o     Path to output file.  If not given, will use ./servers-created.yml
+    -h     Show this help and exit
+
+See below for more on what these mean.
 
 
 ## Usage
@@ -78,7 +93,7 @@ should look something like this:
                         "image": "WIN_WEB_2008_SQL"
                     }
                 ],
-                "avoid": "app1"
+                "avoid": ["app1"]
             }
         ],
 
@@ -92,12 +107,20 @@ should look something like this:
 Servers and drives have a fair few more config options: I'll write them up but they're mostly the same
 as the ElasticHosts API.
 
-In this example, `"avoid": "app1"` will request that the drives and server for app2 are on different hardware
+In this example, `"avoid": ["app1"]` will request that the drives and server for app2 are on different hardware
 to that used by `app1` (using the server name).  For each server, all drives are created first, and imaging happens.
  Everything will wait until imaged drives are ready (it polls until they're done).  Then the server is created.
 
 This will all happen in order, so your 'avoid' statements need to be down the list (i.e. it won't work to try and
-tell `app1` to avoid `app2`).
+tell `app1` to avoid `app2`).  Note that avoid is an array, so a third app node could avoid app1 and app2.
+
+Then assuming all your files have default names:
+
+```bash
+$> ./build-eh-servers.php
+```
+
+You'll see logging output of what's happening and what the commands being run are.
 
 
 ## Tests
@@ -129,12 +152,13 @@ also no error checking in it.  In other words, it's pretty basic, but you can se
 
 In rough order of priority for me:
 
-- Output writer to take servers after they're set up and write IPs etc into an ansible inventory file
-- Some more error checking
-- Allow command line option to set credentials file
-- Allow command line option to set inventory file
-- Could refactor response parsing out into separate classes
-- Look at a VirtualBox implementation for testing (ie to create servers in VirtualBox locally from the same inventory file).
+[x] Output writer to take servers after they're set up and write IPs etc into an ansible inventory file
+[x] Some more error checking
+[x] Allow command line option to set credentials file
+[x] Allow command line option to set inventory file
+[ ] Could refactor response parsing out into separate classes
+[ ] Look at a VirtualBox implementation for testing (ie to create servers in VirtualBox locally from the same inventory file).
+
 
 ## License
 
