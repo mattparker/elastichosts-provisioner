@@ -8,6 +8,6 @@
 interface Runner {
 
 
-    public function run ($command);
+    public function run ($command, array $args = array());
     
 } 

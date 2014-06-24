@@ -118,13 +118,14 @@ class EHBuilder {
     }
 
     /**
-     * @param $command
+     * @param string $command
+     * @param array $args
      *
      * @return mixed
      */
-    private function run ($command) {
+    private function run ($command, array $args = array()) {
         $this->log("  [running $command]");
-        return $this->runner->run($command);
+        return $this->runner->run($command, $args);
     }
 
 
@@ -162,10 +163,10 @@ class EHBuilder {
         }
 
 
-        $command = $this->serverBuilder->create($server);
+        list($command, $args) = $this->serverBuilder->create($server);
 
         $this->log("Creating server " . $server->getConfigValue('name'));
-        $info = $this->run($command);
+        $info = $this->run($command, $args);
         $this->serverBuilder->parseResponse($server, $info, EHServerBuilder::CREATE);
 
     }
@@ -181,11 +182,11 @@ class EHBuilder {
         foreach ($drives as $drive) {
             /** @var EHDrive $drive */
 
-            $command = $this->driveBuilder->create($drive, $driveIdsToAvoid);
+            list($command, $args) = $this->driveBuilder->create($drive, $driveIdsToAvoid);
 
             $this->log("Creating drive " . $drive->getName());
 
-            $info = $this->run($command);
+            $info = $this->run($command, $args);
             $this->driveBuilder->parseResponse($drive, $info, EHDriveBuilder::CREATE);
 
 
@@ -208,8 +209,8 @@ class EHBuilder {
 
             $this->log("Creating image on drive " . $image);
 
-            $imageCommand = $this->driveBuilder->image($drive, constant('EHDriveBuilder::' . $drive->getImage()));
-            $this->run($imageCommand);
+            list($imageCommand, $args) = $this->driveBuilder->image($drive, constant('EHDriveBuilder::' . $drive->getImage()));
+            $this->run($imageCommand, $args);
 
             $this->pollForImagingComplete($drive);
         }
@@ -245,8 +246,8 @@ class EHBuilder {
                 $drive = $queue[$driveNum];
 
                 // The call to info contains imaging progress
-                $command = $this->driveBuilder->info($drive);
-                $info = $this->run($command);
+                list($command, $args) = $this->driveBuilder->info($drive);
+                $info = $this->run($command, $args);
 
                 $stillWaiting = $this->driveBuilder->parseResponse($drive, $info, EHDriveBuilder::IS_IMAGING_COMPLETE);
                 if ($stillWaiting === 'false') {

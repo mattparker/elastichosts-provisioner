@@ -42,7 +42,7 @@ class EHDriveBuilder {
      * @param EHDrive $drive
      * @param array   $avoidingDrives
      *
-     * @return string
+     * @return array  First is command (ie drives create), second is params
      * @throws LogicException
      */
     public function create (EHDrive $drive, array $avoidingDrives = null) {
@@ -66,7 +66,7 @@ class EHDriveBuilder {
             $args[] = 'avoid ' . implode(' ', $avoidingDrives);
         }
 
-        return $uri . ' ' . implode(' ', $args);
+        return [$uri, $args];
     }
 
 
@@ -88,7 +88,7 @@ class EHDriveBuilder {
         if (!$id) {
             throw new LogicException("The drive needs to be created and have and ID before imaging");
         }
-        return ' drives ' . $id . ' image ' . $imageName;
+        return [' drives ' . $id . ' image ' . $imageName, []];
 
     }
 
@@ -106,7 +106,7 @@ class EHDriveBuilder {
         if (!$id) {
             throw new InvalidArgumentException("Cannot get info from a drive that does not have an ID");
         }
-        return ' drives ' . $id . ' info';
+        return [' drives ' . $id . ' info', []];
     }
 
 
@@ -126,7 +126,7 @@ class EHDriveBuilder {
                 return $this->parseResponseForImagingComplete($response);
                 break;
         }
-
+        return null;
     }
 
     /**
@@ -149,7 +149,16 @@ class EHDriveBuilder {
      */
     private function parseResponseForImagingComplete (array $response) {
         $searchLine = '/^imaging (.*)$/';
-        return $this->searchResponseArrayForLine($response, $searchLine);
+        $foundImaging = $this->searchResponseArrayForLine($response, $searchLine);
+        if ($foundImaging) {
+            return $foundImaging;
+        }
+        $searchForActive = '/^status (active)/';
+        $foundActive = $this->searchResponseArrayForLine($response, $searchForActive);
+        if ($foundActive) {
+            // it's active, so not imaging:
+            return 'false';
+        }
     }
 
     /**
@@ -162,8 +171,11 @@ class EHDriveBuilder {
         $matches = [];
         foreach ($response as $imagingLine) {
             if (preg_match($searchLine, $imagingLine, $matches)) {
-                return $matches[1];
+                if (is_array($matches) && array_key_exists(1, $matches)) {
+                    return $matches[1];
+                }
             }
         }
+        return false;
     }
 } 

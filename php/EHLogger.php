@@ -10,7 +10,7 @@ class EHLogger {
 
     public function log ($msg) {
 
-        echo "\n -- LOG -- " . $msg . "\n";
+        echo "\n -- LOG " . date("H:i:s") . " -- " . $msg . "\n";
 
     }
 

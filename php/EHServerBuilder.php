@@ -47,12 +47,13 @@ class EHServerBuilder {
     public function create (EHServer $server) {
 
         $uri = 'servers create';
+        $args = [];
 
         // initial properties
         foreach ($this->properties as $prop) {
             $value = $server->getConfigValue($prop);
             if ($value !== null) {
-                $uri .= ' ' . $prop . ' ' . $value;
+                $args[] = $prop . ' ' . $value;
             }
         }
 
@@ -63,7 +64,7 @@ class EHServerBuilder {
             /** @var EHDrive $drive */
             // get sequentially increasing ide:0:0, ide:0:1, ide:1:0, ide:1:1
             $deviceId = 'ide:' . (int)(($driveCount & 2) > 0) . ':' . (int)(($driveCount & 1) > 0);
-            $uri .= ' ' . $deviceId . ' ' . $drive->getIdentifier();
+            $args[] = $deviceId . ' ' . $drive->getIdentifier();
             $driveCount++;
         }
         if ($driveCount > 4) {
@@ -71,7 +72,7 @@ class EHServerBuilder {
         }
 
 
-        return $uri;
+        return [$uri, $args];
 
     }
 
@@ -110,5 +111,6 @@ class EHServerBuilder {
                 return $matches[1];
             }
         }
+        return null;
     }
 } 
