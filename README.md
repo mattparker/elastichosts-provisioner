@@ -122,7 +122,7 @@ should look something like this:
 ```
 
 Servers and drives have a fair few more config options: I'll write them up but they're mostly the same
-as the ElasticHosts API.
+as the [ElasticHosts API](http://elastichosts.co.uk/support/api/).
 
 In this example, `"avoid": ["app1"]` will request that the drives and server for app2 are on different hardware
 to that used by `app1` (using the server name).  For each server, all drives are created first, and imaging happens.
@@ -138,6 +138,27 @@ $> ./build-eh-servers.php
 ```
 
 You'll see logging output of what's happening and what the commands being run are.
+
+
+### Drive images available
+
+ElasticHosts provides some drive images that you can use.  Available ones are:
+
+- CENTOS_65
+- DEBIAN_74
+- UBUNTU_1204
+- UBUNTU_1310
+- WIN_WEB_2008
+- WIN_WEB_2008_SQL
+- WIN_2008
+- WIN_2008_SQL
+- WIN_2012
+- WIN_2012_SQL
+
+i.e. pass one of these values in as "image" to the drive spec in the inventory file.  The Windows ones of these
+will incur additional licensing costs - see the ElasticHosts website for more on all this.
+
+
 
 
 ## Output
