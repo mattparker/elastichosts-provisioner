@@ -152,12 +152,12 @@ also no error checking in it.  In other words, it's pretty basic, but you can se
 
 In rough order of priority for me:
 
-[x] Output writer to take servers after they're set up and write IPs etc into an ansible inventory file
-[x] Some more error checking
-[x] Allow command line option to set credentials file
-[x] Allow command line option to set inventory file
-[ ] Could refactor response parsing out into separate classes
-[ ] Look at a VirtualBox implementation for testing (ie to create servers in VirtualBox locally from the same inventory file).
+ - [x] Output writer to take servers after they're set up and write IPs etc into an ansible inventory file
+ - [x] Some more error checking
+ - [x] Allow command line option to set credentials file
+ - [x] Allow command line option to set inventory file
+ - [ ] Could refactor response parsing out into separate classes
+ - [ ] Look at a VirtualBox implementation for testing (ie to create servers in VirtualBox locally from the same inventory file).
 
 
 ## License
