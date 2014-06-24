@@ -69,6 +69,22 @@ class EHDrive implements Drive {
     }
 
 
+    /**
+     * Hard disk or SSD
+     * @return string
+     */
+    public function getTier () {
+        if (!property_exists($this->config, 'tier')) {
+
+            if (property_exists($this->config, 'ssd')) {
+                return 'ssd';
+            }
+            return 'disk';
+        }
+        return $this->config->tier;
+    }
+
+
 
 
     /**

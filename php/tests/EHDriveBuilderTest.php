@@ -40,6 +40,7 @@ class EHDriveBuilderTest extends PHPUnit_Framework_TestCase {
         $this->assertContains('drives create', $output[0]);
         $this->assertContains('name bob123', $output[1]);
         $this->assertContains('size 123456', $output[1]);
+        $this->assertContains('tier disk', $output[1]);
     }
 
     public function  test_create_a_drive_avoiding_other_drives () {
@@ -92,6 +93,33 @@ class EHDriveBuilderTest extends PHPUnit_Framework_TestCase {
         $out = $builder->info($drive, EHDriveBuilder::DEBIAN_74);
         $this->assertContains('drives 123098 info', $out[0]);
 
+    }
+
+    public function test_we_can_specify_a_ssd () {
+        $cfg = (object)[
+            'name' => 'a',
+            'size' => '123213',
+            'ssd' => '1'
+        ];
+        $drive = new EHDrive($cfg);
+        $builder = new EHDriveBuilder();
+
+        $output = $builder->create($drive);
+        $this->assertContains('tier ssd', $output[1]);
+    }
+
+
+    public function test_we_can_specify_a_ssd_using_tier () {
+        $cfg = (object)[
+            'name' => 'a',
+            'size' => '123213',
+            'tier' => 'ssd'
+        ];
+        $drive = new EHDrive($cfg);
+        $builder = new EHDriveBuilder();
+
+        $output = $builder->create($drive);
+        $this->assertContains('tier ssd', $output[1]);
     }
 }
  

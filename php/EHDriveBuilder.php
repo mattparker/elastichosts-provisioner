@@ -61,6 +61,8 @@ class EHDriveBuilder {
         }
         $args[] = 'size ' . $size;
 
+        $args[] = 'tier ' . $drive->getTier();
+
 
         if ($avoidingDrives) {
             $args[] = 'avoid ' . implode(' ', $avoidingDrives);
@@ -145,7 +147,7 @@ class EHDriveBuilder {
     /**
      * @param array $response
      *
-     * @return mixed
+     * @return string
      */
     private function parseResponseForImagingComplete (array $response) {
         $searchLine = '/^imaging (.*)$/';
@@ -159,6 +161,7 @@ class EHDriveBuilder {
             // it's active, so not imaging:
             return 'false';
         }
+        return '';
     }
 
     /**
