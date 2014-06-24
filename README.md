@@ -66,6 +66,17 @@ should look something like this:
                 "name": "app1",
                 "cpu": 500,
                 "mem": 256,
+                "boot": "ide:0:0",
+                "nic:0:model": "e1000",
+                "nic:0:dhcp": "auto",
+
+                "nic:1:model": "e1000",
+
+                "vnc": "auto",
+                "password": "xxxxxxxx",
+
+                "persistent": "true",
+
                 "drives": [
                     {
                         "name": "app1bootdrive",
@@ -76,7 +87,8 @@ should look something like this:
                     {
                         "name": "app1data",
                         "boot": false,
-                        "size": 2000000000
+                        "size": 2000000000,
+                        "ssd": true
                     }
                 ]
 
@@ -114,6 +126,8 @@ should look something like this:
         ]
     },
 
+    "vlan": "name_of_vlan_to_create",
+
     "meta": {
         "server-build-version": "0.1",
         "author": "Matt Parker"
@@ -124,9 +138,26 @@ should look something like this:
 Servers and drives have a fair few more config options: I'll write them up but they're mostly the same
 as the [ElasticHosts API](http://elastichosts.co.uk/support/api/).
 
-In this example, `"avoid": ["app1"]` will request that the drives and server for app2 are on different hardware
-to that used by `app1` (using the server name).  For each server, all drives are created first, and imaging happens.
- Everything will wait until imaged drives are ready (it polls until they're done).  Then the server is created.
+With this example, roughly what'll happen (in this order):
+
+- 1. Create a VLAN
+- 2. Create drive app1bootdrive.
+- 3. Create drive app1data (as an SSD disk)
+- 4. Poll every few seconds until the imaging is complete on `app1bootdrive`.
+- 5. Create server `app1`, with two drives attached (and `app1bootdrive` as boot drive) and attached to the VLAN.
+    It will be attached to the VLAN because a) we created one using the `vlan` item, and b) we specified a model
+    for the second NIC card.  A couple of other gotchas: the VNC password cannot be longer than 8 characters.
+    And if you don't specify `"persistent": "true"` the server will disappear if you shut it down.
+- 6. Create drive `app2bootdrive`, requesting that it avoid sharing hardware with server `app1`, or the drives attached
+    to `app1` (ie `app1bootdrive` and `app1data`)
+- 7. Poll every few seconds until the imaging is complete on `app2bootdrive`.
+- 8. Create server `app2`, with drive `app2bootdrive` but not linked to the VLAN and not persistent.  Again it will request
+    that the server does not share any hardware with `app1` or the drives linked to `app1`.
+- 9. Create drive `db1bootdrive`, avoiding all hardware involved with `app1` and `app2`.
+- 10. Wait until the Windows Web server 2008 + SQL imaging is done.
+- 11. Create server `db`, again avoiding `app1` and `app2` hardware.
+- 12. Write out the .yml inventory file for use with Ansible.
+
 
 This will all happen in order, so your 'avoid' statements need to be down the list (i.e. it won't work to try and
 tell `app1` to avoid `app2`).  Note that avoid is an array, so a third app node could avoid app1 and app2.
