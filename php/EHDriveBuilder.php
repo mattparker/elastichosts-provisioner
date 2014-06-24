@@ -88,7 +88,7 @@ class EHDriveBuilder {
         if (!$id) {
             throw new LogicException("The drive needs to be created and have and ID before imaging");
         }
-        return [' drives ' . $id . ' image ' . $imageName, []];
+        return [' drives ' . $id . ' image ' . $imageName . ' gunzip', []];
 
     }
 
