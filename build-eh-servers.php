@@ -141,6 +141,11 @@ function create_servers (array $spec) {
     $ehBuilder = new EHBuilder($ehServerBuilder, $ehDriveBuilder, $runner);
 
 
+    if (array_key_exists('vlan', $spec)) {
+        $vlan_resource = create_vlan($spec['vlan']);
+        $ehBuilder->setVlanId($vlan_resource);
+    }
+
     foreach ((array)$spec['servers'] as $serverGroupName => $serverInfo) {
 
         $group = new EHServerGroup($serverGroupName);
@@ -159,6 +164,24 @@ function create_servers (array $spec) {
 
     return $allGroups;
 
+}
+
+
+/**
+ * @param string $name
+ *
+ * @return string Resource
+ */
+function create_vlan ($name = '') {
+
+    $runner = new CommandLineRunner();
+    $builder = new EHVlanBuilder();
+
+    $command = $builder->create($name);
+    $response = $runner->run($command[0], $command[1]);
+    $id = $builder->parseResponse($response);
+
+    return $id;
 }
 
 

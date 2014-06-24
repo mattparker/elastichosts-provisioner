@@ -189,6 +189,14 @@ The inventory file is called `servers-created.yml` and will overwrite anything t
 the `-o` option.
 
 
+
+## OK, I've got some servers, what next?
+
+You'll probably need to connect via VNC to set up a initial user account to connect with over SSH.  I'll then hand over
+to ansible to set the servers up as needed.
+
+
+
 ## Tests
 
 There are unit tests in the `tests/` folder.  `phpunit` is the only composer dependency.  However there's some short array
@@ -222,6 +230,7 @@ In rough order of priority for me:
  - [x] Some more error checking
  - [x] Allow command line option to set credentials file
  - [x] Allow command line option to set inventory file
+ - [ ] Ability to create a VLAN
  - [ ] Could refactor response parsing out into separate classes
  - [ ] Look at a VirtualBox implementation for testing (ie to create servers in VirtualBox locally from the same inventory file).
 

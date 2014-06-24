@@ -18,6 +18,16 @@ class EHBuilder {
 
 
     /**
+     * Number of seconds to wait when polling for drive imaging to complete
+     * $var int
+     */
+    const SLEEP_TIMEOUT = 5;
+
+
+
+
+
+    /**
      * @var EHServerBuilder
      */
     private $serverBuilder;
@@ -42,15 +52,14 @@ class EHBuilder {
     private $pollingQueue = [];
 
     /**
-     * Number of seconds to wait when polling for drive imaging to complete
-     * $var int
-     */
-    const SLEEP_TIMEOUT = 5;
-
-    /**
      * @var EHLogger
      */
     private $logger;
+
+    /**
+     * @var string VLan guid
+     */
+    private $vlan_guid;
 
 
     /**
@@ -137,6 +146,17 @@ class EHBuilder {
     public function setLogger ($logger) {
         $this->logger = $logger;
     }
+
+
+    /**
+     * Sets the guid resource id of a created vlan
+     * @param $id
+     */
+    public function setVlanId ($id) {
+        $this->vlan_guid = $id;
+    }
+
+
 
     /**
      * @param $message
