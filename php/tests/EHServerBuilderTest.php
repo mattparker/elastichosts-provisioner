@@ -189,5 +189,88 @@ class EHServerBuilderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($id, $server->getIdentifier());
 
     }
+
+
+    public function test_a_server_with_a_vlan_on_nic1 () {
+        $driveCfg = ['name' => 'testdrive', 'size' => 1000000];
+
+        $cfg = [
+            'name' => 'testserver1',
+            'cpu' => '500',
+            'mem' => '256',
+            'nic:0:model' => 'e1000',
+            'nic:0:dhcp' => 'auto',
+            'nic:1:model' => 'e1000',
+            'boot' => 'ide:0:0',
+            'drives' => [$driveCfg]
+        ];
+        $vlan_guid = 'asdflskjdflkjd';
+
+        $server = new EHServer((object)$cfg);
+        $server->setVlanId($vlan_guid);
+
+        $builder = new EHServerBuilder();
+
+        $output = $builder->create($server);
+
+        $this->assertContains('servers create', $output[0]);
+        $this->assertContains('nic:1:vlan ' . $vlan_guid, $output[1]);
+    }
+
+    public function test_a_server_with_a_specified_vlan_isnt_overwritten () {
+        $driveCfg = ['name' => 'testdrive', 'size' => 1000000];
+        $vlan_guid = 'asdflskjdflkjd';
+
+        $cfg = [
+            'name' => 'testserver1',
+            'cpu' => '500',
+            'mem' => '256',
+            'nic:0:model' => 'e1000',
+            'nic:0:dhcp' => 'auto',
+            'nic:1:model' => 'e1000',
+            'nic:1:vlan' => $vlan_guid,
+            'boot' => 'ide:0:0',
+            'drives' => [$driveCfg]
+        ];
+
+
+        $server = new EHServer((object)$cfg);
+        $server->setVlanId('somethingelse');
+
+        $builder = new EHServerBuilder();
+
+        $output = $builder->create($server);
+
+        $this->assertContains('servers create', $output[0]);
+        $this->assertContains('nic:1:vlan ' . $vlan_guid, $output[1]);
+        $this->assertNotContains('nic:1:vlan somethingelse', $output[1]);
+    }
+
+
+
+    public function test_a_server_with_nic1_but_no_vlan_doesnt_include_nic1 () {
+        $driveCfg = ['name' => 'testdrive', 'size' => 1000000];
+
+        $cfg = [
+            'name' => 'testserver1',
+            'cpu' => '500',
+            'mem' => '256',
+            'nic:0:model' => 'e1000',
+            'nic:0:dhcp' => 'auto',
+            'nic:1:model' => 'e1000',
+            'boot' => 'ide:0:0',
+            'drives' => [$driveCfg]
+        ];
+
+
+        $server = new EHServer((object)$cfg);
+
+        $builder = new EHServerBuilder();
+
+        $output = $builder->create($server);
+
+        $this->assertContains('servers create', $output[0]);
+        $this->assertNotContains('nic:1:vlan', $output[1]);
+    }
 }
  

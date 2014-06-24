@@ -27,7 +27,6 @@ class EHServerBuilder {
         'nic:0:firewall:accept',
         'nic:0:firewall:reject',
         'nic:1:model',
-        'nic:1:vlan',
         'nic:1:mac',
         'vnc',
         'password',
@@ -54,6 +53,16 @@ class EHServerBuilder {
             $value = $server->getConfigValue($prop);
             if ($value !== null) {
                 $args[] = $prop . ' ' . $value;
+            }
+
+        }
+
+        // set the vlan
+        if ($server->getConfigValue('nic:1:model')) {
+            if ($server->getConfigValue('nic:1:vlan')) {
+                $args[] = 'nic:1:vlan ' . $server->getConfigValue('nic:1:vlan');
+            } else if ($server->getVlanId()) {
+                $args[] = 'nic:1:vlan ' . $server->getVlanId();
             }
         }
 

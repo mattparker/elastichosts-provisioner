@@ -182,6 +182,7 @@ class EHBuilder {
             $server->avoidSharingHardwareWithDrives($driveIdsToAvoid);
         }
 
+        $server->setVlanId($this->vlan_guid);
 
         list($command, $args) = $this->serverBuilder->create($server);
 

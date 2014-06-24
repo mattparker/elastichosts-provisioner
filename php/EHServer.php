@@ -30,6 +30,12 @@ class EHServer implements Server {
     private $public_ip;
 
 
+    /**
+     * @var string
+     */
+    private $vlan_guid;
+
+
 
     /**
      * @param array|object $config Properties for server - see EH docs
@@ -133,7 +139,21 @@ class EHServer implements Server {
     }
 
 
+    /**
+     * Sets the VLAN id, if there is one.
+     * @param null $id
+     */
+    public function setVlanId ($id = null) {
+        $this->vlan_guid = $id;
+    }
 
+    /**
+     * Gets the VLAN id, if there is one.
+     * @return string
+     */
+    public function getVlanId () {
+        return $this->vlan_guid;
+    }
 
 
     /**
