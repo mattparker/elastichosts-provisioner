@@ -144,7 +144,7 @@ function create_servers (array $spec) {
     if (array_key_exists('vlan', $spec)) {
         $vlanBuilder = new EHVlanBuilder();
         $ehBuilder->setVlanBuilder($vlanBuilder);
-        $ehBuilder->buildVlan($spec['name']);;
+        $ehBuilder->buildVlan($spec['vlan']);
     }
 
     foreach ((array)$spec['servers'] as $serverGroupName => $serverInfo) {
